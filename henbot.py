@@ -6,7 +6,7 @@ from random import choice
 def Bot():
     @bot.message_handler(commands = ['start'])
     def st(message):
-        bot.send_message(message.chat.id, 'Хентай-бот, ось теги: \n #neko \n #milf \n #ass \n #tits')
+        bot.send_message(message.chat.id, 'Хентай-бот, ось теги: \n #neko \n #milf \n #ass \n #tits \n #milf \n #guro')
     
     @bot.message_handler(content_types = ['photo'])
     def get_tag(message):
@@ -50,6 +50,6 @@ def Bot():
 if __name__ == '__main__':
     p_path = 'C:/Users/KOSE/Desktop/hbot/h_files/'
     bot = telebot.TeleBot('990227536:AAFxnAsTEwCLrFjRsQ-RfpxCAhLAEVCiRao')
-    tags = ['#neko', '#ass', '#tits']
+    tags = ['#neko', '#ass', '#tits', '#milf', '#guro']
     Bot()
     bot.polling()
