@@ -21,16 +21,21 @@ def Bot():
                     name = file_info.file_id
                     SQL = cursor.execute('''SELECT file_name FROM txtph''')
                     conn.commit()
+                    flag = False
                     for i in SQL.fetchall():
-                        if name != i[0]:
-                            file_d = bot.download_file(file_info.file_path)
-                            with open(p_path + path, 'wb') as f:
-                                f.write(file_d)
-                            cursor.execute('''INSERT INTO txtph(file_path, tag, file_name) VALUES(?, ?, ?);''', (path, m, name))
-                            conn.commit()
-                        else:
-                            cursor.execute('''INSERT INTO txtph(file_path, tag, file_name) VALUES(?, ?, ?);''', (path, m, name))
-                            conn.commit()
+                        if name == i[0]:
+                            flag = True
+                    if flag == False:
+                        file_d = bot.download_file(file_info.file_path)
+                        with open(p_path + path, 'wb') as f:
+                            f.write(file_d)
+                        cursor.execute('''INSERT INTO txtph(file_path, tag, file_name) VALUES(?, ?, ?);''', (path, m, name))
+                        conn.commit()
+                        bot.reply_to(message, 'Фото завантажено й додано в базу даних')
+                    else:
+                        cursor.execute('''INSERT INTO txtph(file_path, tag, file_name) VALUES(?, ?, ?);''', (path, m, name))
+                        conn.commit()
+                        bot.reply_to(message, 'Фото додано в базу даних, але до цього його вже було завантажено')
                     conn.close()
             else:
                 bot.reply_to(message, 'Фото без підпису')
