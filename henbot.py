@@ -6,7 +6,7 @@ from random import choice
 def Bot():
     @bot.message_handler(commands = ['start'])
     def st(message):
-        bot.send_message(message.chat.id, 'Хентай-бот, ось теги: \n #neko \n #milf \n #ass \n #tits \n #milf \n #guro')
+        bot.send_message(message.chat.id, 'Хентай-бот, ось теги: \n #neko \n #milf \n #ass \n #tits \n #milf \n #guro \n #cute')
     
     @bot.message_handler(content_types = ['photo'])
     def get_tag(message):
@@ -18,12 +18,19 @@ def Bot():
                     cursor = conn.cursor()
                     file_info = bot.get_file(message.photo[-1].file_id)
                     path = file_info.file_path.split('/')[-1][:-4] + '.txt'
-                    d_file = bot.download_file(file_info.file_path)
-                    file = open(p_path + path, 'wb')
-                    file.write(d_file)
-                    file.close()
-                    cursor.execute('''INSERT INTO txtph(file_path, tag) VALUES(?, ?);''', (path, m))
+                    name = file_info.file_id
+                    SQL = cursor.execute('''SELECT file_name FROM txtph''')
                     conn.commit()
+                    for i in SQL.fetchall():
+                        if name != i[0]:
+                            file_d = bot.download_file(file_info.file_path)
+                            with open(p_path + path, 'wb') as f:
+                                f.write(file_d)
+                            cursor.execute('''INSERT INTO txtph(file_path, tag, file_name) VALUES(?, ?, ?);''', (path, m, name))
+                            conn.commit()
+                        else:
+                            cursor.execute('''INSERT INTO txtph(file_path, tag, file_name) VALUES(?, ?, ?);''', (path, m, name))
+                            conn.commit()
                     conn.close()
             else:
                 bot.reply_to(message, 'Фото без підпису')
@@ -48,8 +55,8 @@ def Bot():
                 conn.close()
         
 if __name__ == '__main__':
-    p_path = 'C:/Users/KOSE/Desktop/hbot/h_files/'
+    p_path = 'D:/My_packages/Pyprojects/hbot/h_files/'
     bot = telebot.TeleBot('990227536:AAFxnAsTEwCLrFjRsQ-RfpxCAhLAEVCiRao')
-    tags = ['#neko', '#ass', '#tits', '#milf', '#guro']
+    tags = ['#neko', '#ass', '#tits', '#milf', '#guro', '#cute']
     Bot()
     bot.polling()
