@@ -1,7 +1,7 @@
 import telebot
 import sqlite3
 from random import choice
-#C:/Users/KOSE/Desktop/hbot/
+from config import p_path, TOKEN#в файлі config знаходиться каталог, в якому знаходяться фотографії, і ідентифікатор бота
 
 def Bot():
     @bot.message_handler(commands = ['start'])
@@ -84,8 +84,7 @@ def Bot():
         conn.close()
         
 if __name__ == '__main__':
-    p_path = 'D:/My_packages/Pyprojects/hbot/h_files/'
-    bot = telebot.TeleBot('990227536:AAFxnAsTEwCLrFjRsQ-RfpxCAhLAEVCiRao')
+    bot = telebot.TeleBot(TOKEN)
     tags = {'#ass':1, '#pussy':2, '#tits':3, '#legs':4, '#neko':5, '#cute':6, '#toys':7, '#penetration':8, '#anal':9, '#furry':10, '#milf':11, '#creampie':12, '#ero':13, '#masturbation':14}
     Bot()
     bot.polling()
