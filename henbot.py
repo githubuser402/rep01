@@ -1,18 +1,20 @@
 import telebot
 import sqlite3
 from random import choice
-from config import p_path, TOKEN#в файлі config знаходиться каталог, в якому знаходяться фотографії, і ідентифікатор бота
+from config import p_path, TOKEN, db_path, users, admin_id, tags, start_message
+'''в файлі config знаходиться каталог, в якому знаходяться фотографії,
+ідентифікатор бота, шлях до бази даних, шлях до файлу з запитами користувачів, теги, стартове сповіщення'''
 
 def Bot():
     @bot.message_handler(commands = ['start'])
     def st(message):
-        bot.send_message(message.chat.id, 'Це мій невеликий проект, темою якого є хентай-бот. \nБот не має обмежень по кількості тегів. \nКатеорії: \n#ass \n#pussy \n#tits \n#legs \n#neko \n#cute \n#toys \n#penetration \n#anal \n#furry \n#milf \n#creampie \n#ero \n#masturbation \nВказівка до використання: категорії потрібно вказувати, розділивши їх пропуском, не використовувати інших знаків.')
+        bot.send_message(message.chat.id, start_message)
     
     @bot.message_handler(content_types = ['photo'])
     def get_file(message):
-        if str(message.chat.id) == '559592369':
+        if str(message.chat.id) == admin_id:
             if message.caption != None:
-                conn = sqlite3.connect('henbot.db')#відкриття бази даних
+                conn = sqlite3.connect(db_path)#відкриття бази даних
                 cursor = conn.cursor()
                 file_info = bot.get_file(message.photo[-1].file_id)#інформація про файл
                 file_num = file_info.file_id[-10:]#десять останніх цифр ідентифікатора знімка
@@ -53,7 +55,7 @@ def Bot():
                 
     @bot.message_handler(content_types = ['text'])
     def send_file(message):
-        conn = sqlite3.connect('henbot.db')#відкриття бази даних
+        conn = sqlite3.connect(db_path)#відкриття бази даних
         cursor = conn.cursor()
         user_tags = sorted(set(message.text.split(' ')))#сортування, видалення дублікатів
         req_tags = ''
@@ -61,7 +63,11 @@ def Bot():
         for t in user_tags:
             if t in tags:
                 req_tags += t
-                
+            
+        #запис інформації про користувача с текстовий файл 
+        with open(users, 'a') as user_info:
+            user_info.write(message.chat.first_name + '|' + str(message.chat.id) + '|' + req_tags + '\n')
+            
         #запит в базу даних
         sql = cursor.execute('''SELECT files.file_path, group_concat(tags.tag, '') FROM files
                                           JOIN linking ON linking.f_id = files.f_id
@@ -70,8 +76,7 @@ def Bot():
         conn.commit()
         
         #массив шляхів до файлів з необхідним тегом
-        file_paths = [i[0] for i in sql.fetchall() if i[1] == req_tags]
-        print(file_paths)
+        file_paths = [i[0] for i in sql.fetchall() if req_tags in i[1]]
         
         if len(file_paths) != 0:
             fp = choice(file_paths)
@@ -85,6 +90,5 @@ def Bot():
         
 if __name__ == '__main__':
     bot = telebot.TeleBot(TOKEN)
-    tags = {'#ass':1, '#pussy':2, '#tits':3, '#legs':4, '#neko':5, '#cute':6, '#toys':7, '#penetration':8, '#anal':9, '#furry':10, '#milf':11, '#creampie':12, '#ero':13, '#masturbation':14}
     Bot()
     bot.polling()

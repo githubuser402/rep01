@@ -1,3 +1,8 @@
 h_files/
 config.py
 henbot.sqbpro
+users.txt
+__pycache__
+build/
+henbot.spec
+checking_db.py
